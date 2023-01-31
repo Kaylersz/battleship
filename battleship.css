@@ -8,7 +8,7 @@ div#board{
     width: 1024px;
     height: 863px;
     margin: auto;
-    background: url("/images/board.jpg") no-repeat;
+    background: url("/board.jpg") no-repeat;
 }
 
 div#messageArea{
@@ -47,11 +47,11 @@ form input{
 }
 
 .hit {
-    background: url(/images/ship.png) no-repeat center center;
+    background: url(/ship.png) no-repeat center center;
 }
 
 .miss {
-    background: url(/images/miss.png) no-repeat center center;
+    background: url(/miss.png) no-repeat center center;
 }
 
 /* td{
