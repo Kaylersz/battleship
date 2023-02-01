@@ -1,3 +1,137 @@
+var missedSound = new Audio("missed_1sec.mp3")
+var hitSound = new Audio("hit_2sec.wav")
+var alertSound = new Audio("classic-alarm.wav")
+var clapSound = new Audio("applause.wav")
+
+// the model of the game, location of the ships 
+var model = {
+    boardSize: 7,
+    numShips: 3,
+    shipLength: 3,
+    shipSunks: 0,
+
+    ships: [{ locations: [0, 0, 0], hits: ["", "", ""] },
+    { locations: [0, 0, 0], hits: ["", "", ""] },
+    { locations: [0, 0, 0], hits: ["", "", ""] }],
+
+    fire: function (guess) {
+        for (var i = 0; i < this.numShips; i++) {
+            var ship = this.ships[i]
+            // search the guesses
+            var index = ship.locations.indexOf(guess);
+
+            if (ship.hits[index] === "hit") {
+                view.displayMessage("Oops, sorry po baby you already hit that location na po");
+                missedSound.play();
+
+                return true
+            }
+            else if (index >= 0) {
+                // We have a hit
+                ship.hits[index] = "hit";
+                view.displayHit(guess);
+                view.displayMessage("HIT! galing bebe koo");
+                hitSound.play();
+
+
+                if (this.isSunk(ship)) {
+                    view.displayMessage("You sank my Battleship babyy galiingg!")
+                    this.shipSunks++
+                }
+                return true
+            }
+        }
+        view.displayMiss(guess);
+        view.displayMessage("You missed me po hehe labyu <3");
+        missedSound.play();
+        return false
+    },
+
+    isSunk: function (ship) {
+        for (var i = 0; i < this.shipLength; i++) {
+            if (ship.hits[i] !== "hit") {
+                return false
+            }
+        }
+        return true
+    },
+
+    generateShipLocation: function () {
+        var locations;
+        // generate each ships location
+        for (var i = 0; i < this.numShips; i++) {
+            do {
+                // generate a new set of location
+                locations = this.generateShip();
+            }
+            // check if the location overlap and if it is, it will continue to generate until there is no collision
+            while (this.collision(locations));
+            // it will assign the locations to the ship's location property in the model.ships array
+            this.ships[i].locations = locations;
+        }
+    },
+
+    generateShip: function () {
+        var direction = Math.floor(Math.random() * 2);
+        var row, col;
+
+        if (direction === 1) { // Generate a location for a horizontal ship
+            row = Math.floor(Math.random() * this.boardSize);
+            // subtract by 3 to start always between 0 and 4, so the it must leave room for the other two locations of the ship
+            col = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
+        } else { // Generate a location for a vertical ship
+            row = Math.floor(Math.random() * (this.boardSize - this.shipLength + 1));
+            col = Math.floor(Math.random() * this.boardSize);
+        }
+
+        var newShipLocations = [];
+        for (var i = 0; i < this.shipLength; i++) {
+            if (direction === 1) {
+                // add location to array "newShipLocations" for a new horizontal ship
+                newShipLocations.push(`${row}${col + i}`)
+            } else {
+                // add location  to array "newShipLocations" for a new vertical ship
+                newShipLocations.push(`${row + i}${col}`)
+
+            }
+        }
+
+        return newShipLocations
+    },
+    // array of location for a new ship we'd like to place on the board
+    collision: function (locations) {
+        // for each ship already on the board
+        for (var i = 0; i < this.numShips; i++) {
+            var ship = model.ships[i];
+            // check if any of the locations in the new ships array are in an existing ships location array
+            for (var j = 0; j < locations.length; j++) {
+                // check if the location already exists in the ship, when is >= 0 it match an existing location
+                if (ship.locations.indexOf(locations[j]) >= 0) {
+                    // if collision found return true, stops the iteration of both loop
+                    return true
+                }
+            }
+        }
+        // there is no collision
+        return false
+    }
+};
+/*
+model.fire("53") // miss
+
+model.fire("06") // hit
+model.fire("16") // hit
+model.fire("26") // hit
+
+model.fire("34") // hit
+model.fire("24") // hit
+model.fire("44") // hit
+
+model.fire("12") // hit
+model.fire("10") // hit
+model.fire("11") // hit
+*/
+
 // this object holds the displays in board like msgs, miss pic and hit pic(ships)
 var view = {
     // this method takes a string message and displays it in the message display area
@@ -22,141 +156,30 @@ var view = {
 
 }
 
-// the model of the game, location of the ships 
-var model = {
-    boardSize: 7,
-    numShips: 3,
-    shipLength: 3,
-    shipSunks: 0,
-    ships: [{ locations: [0, 0, 0], hits: ["", "", ""] },
-            { locations: [0, 0, 0], hits: ["", "", ""] },
-            { locations: [0, 0, 0], hits: ["", "", ""] }],
-    fire: function (guess) {
-        for (var i = 0; i < this.numShips; i++) {
-            var ship = this.ships[i]
-            var locations = ship.locations
-            // search the guesses
-            var index = locations.indexOf(guess);
-            if (index >= 0) {
-                // We have a hit
-                ship.hits[index] = "hit";
-                view.displayHit(guess);
-                view.displayMessage("HIT! galing bebe koo")
-                if (this.isSunk(ship)) {
-                    view.displayMessage("You sank my Battleship!")
-                    this.shipSunks++
-                }
-                return true
-            }
-        }
-        view.displayMiss(guess);
-        view.displayMessage("You missed me po hehe labyu <3")
-        return false
-    },
 
-    isSunk: function (ship) {
-        for (var i = 0; i < this.shipLength; i++) {
-            if (ship.hits[i] !== "hit") {
-                return false
-            }
-        }
-        return true
-    },
-
-    generateShipLocation: function () {
-        var locations;
-        // generate each ships location
-        for (var i = 0; i < this.numShips; i++) {
-            do {
-                // generate a new set of location
-                locations = this.generateShip();
-            } 
-            // check if the location overlap and if it is, it will continue to generate until there is no collision
-            while (this.collision(locations));
-            // it will assign the locations to the ship's location property in the model.ships array
-            this.ships[i].locations = locations;
-        }
-    },
-
-    generateShip: function(){
-        var direction = Math.floor(Math.random() * 2);
-        var row, col;
-
-        if (direction === 1){
-            // Generate a location for a horizontal ship
-            row = Math.floor(Math.random() * this.boardSize);
-            // subtract by 3 to start always between 0 and 4, so the it must leave room for the other two locations of the ship
-            col = Math.floor(Math.random() * (this.boardSize - this.shipLength));
-        } else {
-            // Generate a location for a vertical ship
-            row = Math.floor(Math.random() * (this.boardSize - this.shipLength));
-            col = Math.floor(Math.random() * this.boardSize);
-        }
-
-        var newShipLocations = [];
-        for (var i = 0; i < this.shipLength; i++){
-            if (direction === 1){
-                // add location to array "newShipLocations" for a new horizontal ship
-                newShipLocations.push(`${row}${col + i}`)
-            } else {
-                // add location  to array "newShipLocations" for a new vertical ship
-                newShipLocations.push(`${row + i}${col}`)
-
-            }
-        }
-
-        return newShipLocations
-    },
-    // array of location for a new ship we'd like to place on the board
-    collision: function(locations){
-        // for each ship already on the board
-        for (var i = 0; i < this.numShips; i++){
-            var ship = model.ships[i];
-            // check if any of the locations in the new ships array are in an existing ships location array
-            for (var j = 0; j < locations.length; j++){
-                // check if the location already exists in the ship, when is >= 0 it match an existing location
-                if (ship.locations.indexOf(locations[j]) >= 0){
-                    // if collision found return true, stops the iteration of both loop
-                    return true
-                }
-            }
-        }
-        // there is no collision
-        return false
-    }
-}
-/*
-model.fire("53") // miss
-
-model.fire("06") // hit
-model.fire("16") // hit
-model.fire("26") // hit
-
-model.fire("34") // hit
-model.fire("24") // hit
-model.fire("44") // hit
-
-model.fire("12") // hit
-model.fire("10") // hit
-model.fire("11") // hit
-*/
 
 // Implimenting parses & for convertion when entering guesses in input
 function parseGuess(guess) {
     var alphabet = ["A", "B", "C", "D", "E", "F", "G"]
 
     if (guess === null || guess.length !== 2) {
-        alert("Oops, please enter a letter and number on the board")
+        view.displayMessage("Oops, please enter a letter and number on the board");
+        alertSound.play();
+
     } else {
         // convertion from letter string to number
-        firstChar = guess.charAt(0);
+        var firstChar = guess.charAt(0);
         var row = alphabet.indexOf(firstChar);
         var column = guess.charAt(1);
 
         if (isNaN(row) || isNaN(column)) {
-            alert("Oops, that isnt on the board.")
+            view.displayMessage("Oops, that isnt on the board.");
+           alertSound.play();
+
         } else if (row < 0 || row >= model.boardSize || column < 0 || column >= model.boardSize) {
-            alert("Oops, thats off board.")
+            view.displayMessage("Oops, thats off board.");
+            alertSound.play();
+
         } else {
             // converting from number to string
             return row + column
@@ -182,7 +205,8 @@ var controller = {
             this.guesses++;
             var hit = model.fire(location);
             if (hit && model.shipSunks === model.numShips) {
-                view.displayMessage(`You sank all my battleships, in ${this.guesses} guesses`)
+                view.displayMessage(`You sank all battleships my palanggingging, in ${this.guesses} guesses`);
+                clapSound.play();
             }
         }
     }
@@ -223,7 +247,7 @@ function init() {
 // for fire button using an event handler
 function handleFireButton() {
     var guessInput = document.getElementById("guessInput");
-    var guess = guessInput.value;
+    var guess = guessInput.value.toUpperCase();
     // pass the players guess to the controller
     controller.processGuess(guess);
 

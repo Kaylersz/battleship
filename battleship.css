@@ -1,17 +1,44 @@
-body{
-    background-color: #000;
-  
+* {
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-div#board{
+body {
+    background-color: #000;
+    height: auto;
+
+}
+
+a {
+    text-decoration: none;
+    color: rgb(83, 175, 19);
+}
+
+a:hover {
+    color: yellow;
+}
+
+
+
+footer {
+    position: absolute;
+    bottom: 28pt;
+    margin-left: auto;
+    margin-right: auto;
+    left: 0;
+    right: 0;
+    text-align: center;
+}
+
+
+div#board {
     position: relative;
     width: 1024px;
-    height: 863px;
+    height: 900px;
     margin: auto;
     background: url("/board.jpg") no-repeat;
 }
 
-div#messageArea{
+div#messageArea {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -32,7 +59,7 @@ td {
     height: 94px;
 }
 
-form{
+form {
     position: absolute;
     bottom: 0px;
     right: 0px;
@@ -40,7 +67,7 @@ form{
     background: rgb(83, 175, 19);
 }
 
-form input{
+form input {
     background: rgb(152, 207, 115);
     border-color: rgb(83, 175, 19);
     font-size: 1em;
@@ -52,6 +79,21 @@ form input{
 
 .miss {
     background: url(/miss.png) no-repeat center center;
+}
+
+@media (max-width: 768px) {
+    div#messageArea {
+        font-size: 20px;
+    }
+
+    form {
+        bottom: 0;
+        padding: 10px;
+    }
+
+    form input {
+        font-size: 0.8em;
+    }
 }
 
 /* td{
