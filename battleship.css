@@ -40,7 +40,6 @@ div#board {
 
 div#messageArea {
     position: absolute;
-    top: 0px;
     left: 0px;
     color: rgb(83, 175, 19);
     font-size: 30px;
